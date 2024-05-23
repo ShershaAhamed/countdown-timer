@@ -1,25 +1,43 @@
-import logo from './logo.svg';
+import React, { useState, useEffect, useRef } from 'react';
+import CountdownDisplay from './components/CountdownDisplay';
+import TimeInput from './components/TimeInput';
+import TimerControls from './components/TimerControls';
 import './App.css';
 
-function App() {
+const App = () => {
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (isRunning && time > 0) {
+      timerRef.current = setInterval(() => {
+        setTime((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (time === 0) {
+      clearInterval(timerRef.current);
+      setIsRunning(false);
+    }
+    return () => clearInterval(timerRef.current);
+  }, [isRunning, time]);
+
+  const startTimer = () => {
+    if (time > 0) setIsRunning(true);
+  };
+
+  const stopTimer = () => {
+    clearInterval(timerRef.current);
+    setIsRunning(false);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Countdown Timer</h1>
+      <CountdownDisplay time={time} />
+      <TimeInput setTime={setTime} />
+      <TimerControls startTimer={startTimer} stopTimer={stopTimer} />
     </div>
   );
-}
+};
 
 export default App;
